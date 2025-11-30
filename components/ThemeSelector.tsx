@@ -2,7 +2,7 @@
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { useState, useEffect } from 'react';
-import { themes } from '@/constants/themes'; // Yeh import add karo
+import { themes } from '@/constants/themes';
 
 // Custom icons without SVG to avoid hydration issues
 const IconPalette = () => <span>🎨</span>;
@@ -42,16 +42,8 @@ const ThemeSelector = () => {
   };
 
   // Don't render until mounted on client
-  if (!isMounted || !isInitialized) {
-    return (
-      <button
-        className="floating-theme-btn"
-        style={{ visibility: 'hidden' }}
-        title="Change Theme"
-      >
-        <IconPalette />
-      </button>
-    );
+  if (!isMounted) {
+    return null; // Completely skip rendering during SSR
   }
 
   return (
@@ -91,20 +83,17 @@ const ThemeSelector = () => {
                             setIsOpen(false);
                           }}
                           className={`theme-card ${theme === themeOption.value ? 'active' : ''}`}
-                          style={{
-                            '--theme-primary': themes[themeOption.value].primary,
-                            '--theme-bg': themes[themeOption.value].background
-                          } as React.CSSProperties}
+                          data-theme={themeOption.value}
                         >
                           <div className="theme-preview">
-                            <div className="preview-header" style={{ background: themes[themeOption.value].primary }}>
-                              <span className="preview-dot" style={{ background: themes[themeOption.value].text.accent }}></span>
-                              <span className="preview-dot" style={{ background: themes[themeOption.value].text.accent }}></span>
-                              <span className="preview-dot" style={{ background: themes[themeOption.value].text.accent }}></span>
+                            <div className="preview-header">
+                              <span className="preview-dot"></span>
+                              <span className="preview-dot"></span>
+                              <span className="preview-dot"></span>
                             </div>
                             <div className="preview-content">
-                              <div className="preview-bar" style={{ background: themes[themeOption.value].primary }}></div>
-                              <div className="preview-bar" style={{ background: themes[themeOption.value].surface }}></div>
+                              <div className="preview-bar preview-bar-primary"></div>
+                              <div className="preview-bar preview-bar-surface"></div>
                             </div>
                           </div>
                           <span className="theme-icon">{getThemeIcon(themeOption.value)}</span>

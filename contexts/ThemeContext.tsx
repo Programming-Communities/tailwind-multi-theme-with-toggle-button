@@ -41,6 +41,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (savedTheme && themes[savedTheme]) {
       setTheme(savedTheme);
       setThemeColors(themes[savedTheme]);
+    } else {
+      // Use default theme
+      setTheme(defaultTheme);
+      setThemeColors(themes[defaultTheme]);
     }
     setIsInitialized(true);
   }, []);
@@ -54,18 +58,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const root = document.documentElement;
     
     // Set CSS variables
-    root.style.setProperty('--primary', themes[theme].primary);
-    root.style.setProperty('--secondary', themes[theme].secondary);
-    root.style.setProperty('--background', themes[theme].background);
-    root.style.setProperty('--surface', themes[theme].surface);
-    root.style.setProperty('--text-primary', themes[theme].text.primary);
-    root.style.setProperty('--text-secondary', themes[theme].text.secondary);
-    root.style.setProperty('--text-accent', themes[theme].text.accent);
-    root.style.setProperty('--border', themes[theme].border);
-    root.style.setProperty('--success', themes[theme].success);
-    root.style.setProperty('--warning', themes[theme].warning);
-    root.style.setProperty('--error', themes[theme].error);
-    root.style.setProperty('--shadow', themes[theme].shadow);
+    Object.entries(themes[theme]).forEach(([key, value]) => {
+      if (key === 'text') {
+        // Handle nested text object
+        Object.entries(value as any).forEach(([textKey, textValue]) => {
+          root.style.setProperty(`--text-${textKey}`, textValue as string);
+        });
+      } else if (key === 'shadow') {
+        root.style.setProperty('--shadow', value as string);
+      } else {
+        root.style.setProperty(`--${key}`, value as string);
+      }
+    });
 
     // Update meta theme color for mobile browsers
     const metaThemeColor = document.querySelector("meta[name=theme-color]");
